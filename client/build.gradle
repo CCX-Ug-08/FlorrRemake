@@ -1,0 +1,29 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+application {
+    mainClass = 'noob.ccxug.florr.client.Main'
+}
+
+javafx {
+    version = '25.0.2'
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics']
+}
+
+dependencies {
+    implementation project(':shared')
+}
+
+tasks.register('fatJar', Jar) {
+    archiveBaseName = 'game-client'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}

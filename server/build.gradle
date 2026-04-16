@@ -1,0 +1,23 @@
+plugins {
+    id 'application'
+}
+
+application {
+    mainClass = 'noob.ccxug.florr.server.Main'
+}
+
+dependencies {
+    implementation project(':shared')
+}
+
+tasks.register('fatJar', Jar) {
+    archiveBaseName = 'game-server'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes 'Main-Class': application.mainClass
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    with jar
+}
