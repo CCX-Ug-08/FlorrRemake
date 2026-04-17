@@ -1,17 +1,107 @@
 package noob.ccxug.florr.client;
 
-//TIP 要<b>运行</b>代码，请按 <shortcut actionId="Run"/> 或
-// 点击装订区域中的 <icon src="AllIcons.Actions.Execute"/> 图标。
-public class Main {
-    static void main() {
-        //TIP 当文本光标位于高亮显示的文本处时按 <shortcut actionId="ShowIntentionActions"/>
-        // 查看 IntelliJ IDEA 建议如何修正。
-        IO.println(String.format("Hello and welcome!"));
+import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import noob.ccxug.florr.client.render.Renderable;
+import noob.ccxug.florr.client.render.impl.OutlinedText;
+import noob.ccxug.florr.client.render.impl.RenderableText;
+import noob.ccxug.florr.other.Identifier;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP 按 <shortcut actionId="Debug"/> 开始调试代码。我们已经设置了一个 <icon src="AllIcons.Debugger.Db_set_breakpoint"/> 断点
-            // 但您始终可以通过按 <shortcut actionId="ToggleLineBreakpoint"/> 添加更多断点。
-            IO.println("i = " + i);
-        }
+import java.util.Collection;
+import java.util.List;
+
+public class Main extends Application {
+    private static Main instance;
+    private Canvas canvas;
+    private GraphicsContext gc;
+    private long lastFrameTime;
+    private double viewportWidth = 1280;
+    private double viewportHeight = 720;
+    //all the texts
+    RenderableText TestText = new RenderableText(
+            new Identifier("text", "test"),
+            "Test Text",
+            48.0,
+            Color.BLACK,
+            RenderableText.centered()
+    );
+    OutlinedText Test1 = new OutlinedText(
+            new Identifier("text", "test1"),
+            "Test 1",
+            48.0,
+            Color.WHITE,
+            Color.BLACK,
+            3.0,
+            RenderableText.leftUp(10, 10)
+    );
+    //
+    @Override
+    public void start(Stage stage)
+    {
+        instance = this;
+        stage.setTitle("Florr Client");
+        canvas = new Canvas(1280, 720);
+        gc = canvas.getGraphicsContext2D();
+        StackPane root = new StackPane(canvas);
+        Scene scene = new Scene(root);
+        scene.widthProperty().addListener((obs, oldVal, newVal) -> {
+            canvas.setWidth(newVal.doubleValue());
+            viewportWidth = newVal.doubleValue();
+        });
+        scene.heightProperty().addListener((obs, oldVal, newVal) -> {
+            canvas.setHeight(newVal.doubleValue());
+            viewportHeight = newVal.doubleValue();
+        });
+        stage.setScene(scene);
+        stage.setResizable(true);
+        stage.show();
+        lastFrameTime = System.nanoTime();
+        new AnimationTimer() {
+            @Override
+            public void handle(long now)
+            {
+                double deltaTime = (now - lastFrameTime) / 1_000_000_000.0;
+                lastFrameTime = now;
+                processInput();
+                processNetwork();
+                render(deltaTime);
+            }
+        }.start();
+    }
+    private void processInput()
+    {
+
+    }
+    private void processNetwork()
+    {
+
+    }
+    private void render(double deltaTime)
+    {
+        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        Collection<Renderable> renderables = getVisibleRenderables();
+        for (Renderable r : renderables)
+            r.render(gc, deltaTime);
+    }
+    private Collection<Renderable> getVisibleRenderables()
+    {
+        return List.of(TestText, Test1);
+    }
+    public double getViewportWidth()
+    {
+        return viewportWidth;
+    }
+    public double getViewportHeight()
+    {
+        return viewportHeight;
+    }
+    static void main(String[] args) {
+        launch(args);
     }
 }

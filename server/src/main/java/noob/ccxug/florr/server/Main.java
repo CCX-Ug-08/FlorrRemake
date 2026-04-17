@@ -1,17 +1,64 @@
 package noob.ccxug.florr.server;
 
-//TIP 要<b>运行</b>代码，请按 <shortcut actionId="Run"/> 或
-// 点击装订区域中的 <icon src="AllIcons.Actions.Execute"/> 图标。
-public class Main {
-    static void main() {
-        //TIP 当文本光标位于高亮显示的文本处时按 <shortcut actionId="ShowIntentionActions"/>
-        // 查看 IntelliJ IDEA 建议如何修正。
-        IO.println(String.format("Hello and welcome!"));
+import java.util.concurrent.atomic.AtomicBoolean;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP 按 <shortcut actionId="Debug"/> 开始调试代码。我们已经设置了一个 <icon src="AllIcons.Debugger.Db_set_breakpoint"/> 断点
-            // 但您始终可以通过按 <shortcut actionId="ToggleLineBreakpoint"/> 添加更多断点。
-            IO.println("i = " + i);
+public class Main {
+    private static final int TARGET_TPS = 30;
+    private static final long TICK_DURATION_MS = 1000 / TARGET_TPS;
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private Thread serverThread;
+    public void start()
+    {
+        if (running.get())
+            return;
+        running.set(true);
+        serverThread = new Thread(this::run, "FlorrServer-Main");
+        serverThread.start();
+        System.out.println("[Server] Started with target TPS: " + TARGET_TPS);
+    }
+    private void run()
+    {
+        long lastTickTime = System.currentTimeMillis();
+        long accumulator = 0;
+        while (running.get())
+        {
+            long now = System.currentTimeMillis();
+            long delta = now - lastTickTime;
+            lastTickTime = now;
+            accumulator += delta;
+            while (accumulator >= TICK_DURATION_MS && running.get())
+            {
+                tick();
+                accumulator -= TICK_DURATION_MS;
+            }
+            long sleepTime = TICK_DURATION_MS - (System.currentTimeMillis() - lastTickTime);
+            if (sleepTime > 0) {
+                try {
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
         }
+        System.out.println("[Server] Main loop exited.");
+    }
+    private void tick()
+    {
+
+    }
+    public void stop()
+    {
+        running.set(false);
+        if (serverThread != null)
+            serverThread.interrupt();
+    }
+    static void main(String[] args)
+    {
+        Main server = new Main();
+        server.start();
+        try { Thread.sleep(10000); } catch (InterruptedException ignored) {}
+        server.stop();
+        System.out.println("Server stopped");
     }
 }
