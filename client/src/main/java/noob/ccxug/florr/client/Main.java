@@ -38,7 +38,7 @@ public class Main extends Application {
             Color.WHITE,
             Color.BLACK,
             3.0,
-            RenderableText.leftUp(10, 10)
+            RenderableText.leftUp(10, 20)
     );
     //
     @Override

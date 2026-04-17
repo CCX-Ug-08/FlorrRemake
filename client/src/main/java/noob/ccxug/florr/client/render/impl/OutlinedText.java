@@ -23,7 +23,7 @@ public class OutlinedText extends RenderableText{
         measureTool.setFont(font);
         double textWidth = measureTool.getLayoutBounds().getWidth();
         double textHeight = measureTool.getLayoutBounds().getHeight();
-        double[] pos = positionFunction.calculate(canvasWidth, canvasHeight, textWidth, textHeight);
+        double[] pos = positionFunction.calculate(canvasWidth, canvasHeight, textWidth + strokeWidth / 2, textHeight + strokeWidth / 2);
         double x = pos[0];
         double y = pos[1];
         double oldLineWidth = gc.getLineWidth();
